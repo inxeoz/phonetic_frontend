@@ -39,7 +39,7 @@
 
 
         try {
-            const response = await fetch("	my-phonetic-worker.pk9009895.workers.dev/api/convert", { // Replace with your API endpoint
+            const response = await fetch("http://my-phonetic-worker.pk9009895.workers.dev/api/convert", { // Replace with your API endpoint
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
