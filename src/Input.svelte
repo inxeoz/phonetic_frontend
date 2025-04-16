@@ -1,45 +1,17 @@
 <script lang="ts">
-
     import { phoneticMap } from "./store";
+    import { onMount } from 'svelte';
 
-
-    function addWord(text: string, phonetic:string) {
-        phoneticMap.update(words => [...words, { text: text, phonetic: phonetic }]);
-    }
-
-
-    let inputText = "default";
-
-    let responseData =
-        {
-        "phonetic": [
-            {
-                "text": "i",
-                "phonetic": "/ˈa‍ɪ/"
-            },
-            {
-                "text": "am",
-                "phonetic": "am"
-            },
-            {
-                "text": "the",
-                "phonetic": "/ðə, ði/"
-            },
-            {
-                "text": "boy",
-                "phonetic": "/bˈɔ‍ɪ/"
-            }
-        ]
-    };
-
+    let inputText = "";
     let error = null;
     let loading = false;
 
     async function sendData() {
-
+        loading = true;
+        error = null;
 
         try {
-            const response = await fetch("https://my-phonetic-worker.pk9009895.workers.dev/api/convert", { // Replace with your API endpoint
+            const response = await fetch("https://my-phonetic-worker.pk9009895.workers.dev/api/convert", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -51,14 +23,8 @@
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            responseData = await response.json(); // Process the response data
+            const responseData = await response.json();
             phoneticMap.set(responseData.phonetic);
-
-            // responseData.phonetic.forEach((phoneticPair) => {
-            //     addWord(phoneticPair.text, phoneticPair.phonetic);
-            // })
-            console.log(responseData.phonetic);
-
         } catch (err) {
             error = err;
             console.error(err);
@@ -67,117 +33,128 @@
         }
     }
 
-    let convert = async ()=> {
-        await sendData()
-
+    const convert = async () => {
+        await sendData();
         console.log("Input value:", inputText);
-    }
+    };
+
+    onMount(() => {
+        // Optional: Initialize the phoneticMap with default data on component mount
+        // if (responseData && responseData.phonetic) {
+        //     phoneticMap.set(responseData.phonetic);
+        // }
+    });
 </script>
 
-<!-- frame: Board -->
-<div class="frame board-f6b683839818">
-    <!-- frame: input_button_whole -->
-    <div class="frame inputbutt-f6b683839819">
-        <!-- frame: input_area -->
-        <input type="text" bind:value={inputText}  class="shape frame inputarea-f6b68383981b"/>
-        <!-- frame: convert_button -->
-        <button class="shape frame convertbu-f6b68383981a" on:click={() => convert()}>
-            <span class="shape frame convertbu-f6b68383981b">
-                convert
-            </span>
+<div class="board">
+    <div class="input-container">
+        <input
+                type="text"
+                bind:value={inputText}
+                class="input-area"
+                placeholder="Enter text to convert" />
+        <button class="convert-button" on:click={convert} disabled={loading}>
+            {loading ? 'Converting...' : 'Convert'}
         </button>
     </div>
+
 </div>
 
+<style>
+    /* Global styles */
+    @font-face {
+        font-family: 'Recursive', sans-serif;
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+        src: url(https://design.penpot.app/internal/gfonts/font/recursive/v38/8vJN7wMr0mhh-RQChyHEH06TlXhq_gukbYrFMk1QuAIcyEwG_X-dpEfaE5YaERmK-CImKsvxvU-MXGX2fSqasNfUvz2xbXfn1uEQadCCk317tQ0.woff2) format('woff2');
+    }
 
-    <style>
+    @font-face {
+        font-family: 'Nunito Sans', sans-serif;
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+        src: url(https://design.penpot.app/internal/gfonts/font/nunitosans/v15/pe1mMImSLYBIv1o4X1M8ce2xCx3yop4tQpF_MeTm0lfGWVpNn64CL7U8upHZIbMV51Q42ptCp5F5bxqqtQ1yiU4G1ilXs1Ul.woff2) format('woff2');
+    }
 
-        .convertbu-f6b68383981b{
-            color: rgba(255, 255, 255, 1);
-            text-transform: lowercase;
+    html, body {
+        margin: 0;
+        padding: 0;
+        min-height: 100%;
+        min-width: 100%;
+    }
 
-            line-break: auto;
-            overflow-wrap: initial;
-            white-space: break-spaces;
-            font-size: 48px;
-            text-rendering: geometricPrecision;
-            caret-color: rgba(255, 255, 255, 1);
-            text-decoration: none;
-            letter-spacing: 0px;
-            font-family: "Recursive",sans-serif;
-            font-style: normal;
-            font-weight: 400;
-        }
+    body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100vw;
+        min-height: 100vh;
+        box-sizing: border-box;
+        font-family: 'Nunito Sans', sans-serif; /* Apply Nunito Sans to the entire body */
+    }
 
-        /* Board */
-        .board-f6b683839818 {
-            position: relative;
-            width: 100%;
-            background: #2D2A47;
-            border-radius: 0px 0px 0px 0px;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            align-content: start;
-            justify-content: center;
-            padding: 40px 20px 40px 20px;
-            z-index: 0;
-            flex-direction: row;
-            flex-wrap: wrap;
-            flex-grow: 1;
-        }
+    /* Board container */
+    .board {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 40px 20px;
+        background-color: #2D2A47;
+        flex-grow: 1;
+        width: 100%;
+        box-sizing: border-box;
+    }
 
-        /* input_button_whole */
-        .inputbutt-f6b683839819 {
-            position: relative;
-            height: auto;
-            border-radius: 17px 17px 17px 17px;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            align-content: center;
-            justify-content: space-around;
-            row-gap: 10px;
-            padding: 15px 15px 15px 15px;
-            flex-direction: row;
-            flex-wrap: wrap;
-            flex: 1;
-            min-height: 104px;
-            max-width: 600px;
-        }
+    /* Input container */
+    .input-container {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        max-width: 600px;
+        margin-bottom: 20px;
+        position: relative;
+        align-content: space-between;
+        justify-content: center;
+        z-index: 0;
+        flex-direction: row;
+        flex-wrap: wrap;
+        flex-grow: 1;
 
-        /* convert_button */
-        .convertbu-f6b68383981a {
-            position: relative;
-            width: auto;
 
-            background: #55D751;
-            border-radius: 34px;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            align-content: space-around;
-            justify-content: center;
-            padding: 10px 22px 10px 22px;
-            flex-direction: row;
-            flex-wrap: wrap;
-            max-width: 290px;
-        }
+    }
 
-        /* input_area */
-        .inputarea-f6b68383981b {
-            position: relative;
-            width: auto;
-            height: auto;
-            border: 2px solid #55D751;
-            border-radius: 17px 17px 17px 17px;
-            display: flex;
-            align-items: center;
-            align-content: stretch;
-            justify-content: center;
-            padding: 15px 20px 15px 20px;
-            flex-direction: column;
-            flex-wrap: nowrap;
-        }
-    </style>
+    /* Input area */
+    .input-area {
+        flex: 1;
+        height: 48px;
+        padding: 10px 15px;
+        font-size: 18px;
+        border: 2px solid #55D751;
+        border-radius: 17px;
+        box-sizing: border-box;
+    }
 
+    /* Convert button */
+    .convert-button {
+        width: auto;
+        height: 48px;
+        padding: 10px 22px;
+        font-size: 18px;
+        color: rgba(255, 255, 255, 1);
+        background-color: #55D751;
+        border: none;
+        border-radius: 34px;
+        cursor: pointer;
+        box-sizing: border-box;
+        text-transform: lowercase;
+        font-family: 'Recursive', sans-serif; /* Apply Recursive font */
+    }
+
+    .convert-button:disabled {
+        background-color: gray;
+        cursor: not-allowed;
+    }
+
+</style>
